@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  mysqldb:
+    image: mysql:8.3.0
+    restart: unless-stopped
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=parisEventProject
+    ports:
+      - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+
+  backend:
+    depends_on:
+      - mysqldb
+    image: donia1236/paris_event_project:5.0.0
+    restart: on-failure
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url"  : "jdbc:mysql://mysqldb:3306/parisEventProject?createDatabaseIfNotExist=true",
+        "spring.datasource.username" : "root",
+        "spring.datasource.password" : null,
+        "spring.jpa.hibernate.ddl-auto" : "update"
+      }'
+    stdin_open: true
+    tty: true
+
+  frontend:
+    image: donia1236/paris_events_front:1.0.0
+    restart: on-failure
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+
+volumes:
+  db:
