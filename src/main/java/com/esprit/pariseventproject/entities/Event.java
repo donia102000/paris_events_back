@@ -65,7 +65,7 @@ public class Event implements Serializable {
     private String childrens;
     private String groupe;
     private String locale;
-
+    @Column(name = "event_rank")
     private Double rank;
     private Integer weight;
 
