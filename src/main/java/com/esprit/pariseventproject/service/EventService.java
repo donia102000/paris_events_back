@@ -1,6 +1,7 @@
 package com.esprit.pariseventproject.service;
 
 import com.esprit.pariseventproject.dao.repository.EventRepository;
+import com.esprit.pariseventproject.dto.AddressTypeEventDTO;
 import com.esprit.pariseventproject.entities.Event;
 import com.esprit.pariseventproject.implement.IEventService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,17 +11,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import java.util.*;
+import java.util.stream.Collectors;
 
-
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.esprit.pariseventproject.utils.JsonUtils.*;
 
 
 @Service
@@ -46,34 +43,6 @@ public class EventService implements IEventService {
     }
 
     // Récupère une valeur texte en toute sécurité
-    private String getSafeText(JsonNode node, String fieldName) {
-        return node.has(fieldName) && !node.get(fieldName).isNull() ? node.get(fieldName).asText() : null;
-    }
-
-    // Récupère une valeur double en toute sécurité
-    private Double getSafeDouble(JsonNode node, String fieldName) {
-        return node.has(fieldName) && !node.get(fieldName).isNull() ? node.get(fieldName).asDouble() : null;
-    }
-
-    // Récupère une valeur entière en toute sécurité
-    private Integer getSafeInteger(JsonNode node, String fieldName) {
-        return node.has(fieldName) && !node.get(fieldName).isNull() ? node.get(fieldName).asInt() : null;
-    }
-
-
-
-    private LocalDateTime getSafeLocalDateTime(JsonNode node, String fieldName) {
-        if (node.has(fieldName) && !node.get(fieldName).isNull()) {
-            try {
-                OffsetDateTime offsetDateTime = OffsetDateTime.parse(node.get(fieldName).asText());
-                return offsetDateTime.toLocalDateTime(); // Extrait date + heure (sans fuseau horaire)
-            } catch (DateTimeParseException e) {
-                logger.error(" Erreur de parsing de la date: " + node.get(fieldName).asText());
-            }
-        }
-        return null;
-    }
-
 
     public void fetchAndSaveEvents() {
         try {
@@ -98,6 +67,7 @@ public class EventService implements IEventService {
                    event.setDateEnd(getSafeLocalDateTime(node, "date_end"));
 
                     // Adresse
+
                     event.setAddressName(getSafeText(node, "address_name"));
                     event.setAddressStreet(getSafeText(node, "address_street"));
                     event.setAddressZipcode(getSafeText(node, "address_zipcode"));
@@ -150,6 +120,10 @@ public class EventService implements IEventService {
 
                     // Date de mise à jour (Conversion String -> LocalDateTime)
                     event.setUpdatedAt(getSafeLocalDateTime(node, "updated_at"));
+                    event.setPmr(getSafeBoolean(node, "pmr"));
+                    event.setBlind(getSafeBoolean(node, "blind"));
+                    event.setDeaf(getSafeBoolean(node, "deaf"));
+                    event.setTransport(getSafeText(node, "transport"));
 
                     if (!eventRepository.existsByEventId(event.getEventId())) {
                         events.add(event);
@@ -166,6 +140,20 @@ public class EventService implements IEventService {
           logger.error("Error fetching events: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+
+
+    public List<AddressTypeEventDTO> getEventCountsByAddress() {
+        List<Object[]> results = eventRepository.getEventCountsByAddress();
+
+        return results.stream().map(result ->
+                new AddressTypeEventDTO(
+                        (String) result[0],   // addressName
+                        ((Number) result[1]).longValue(), // payant count
+                        ((Number) result[2]).longValue()  // gratuit count
+                )
+        ).collect(Collectors.toList());
     }
 
 

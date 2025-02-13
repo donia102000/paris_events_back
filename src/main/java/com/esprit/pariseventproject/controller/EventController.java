@@ -1,10 +1,12 @@
 package com.esprit.pariseventproject.controller;
 
+import com.esprit.pariseventproject.dto.AddressTypeEventDTO;
 import com.esprit.pariseventproject.service.EventService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/events")
 public class EventController {
@@ -15,10 +17,11 @@ public class EventController {
         this.eventService = eventService;
     }
 
-   /* @GetMapping("/fetch")
-    public String fetchEvents() {
-        eventService.fetchAndSaveEvents();
-        return "✅ Events fetched and saved!";
-    }*/
+
+
+    @GetMapping("/address-price")
+    public List<AddressTypeEventDTO> getAddressPriceCounts() {
+      return   eventService.getEventCountsByAddress();
+    }
 
 }

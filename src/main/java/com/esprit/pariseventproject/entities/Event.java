@@ -70,4 +70,10 @@ public class Event implements Serializable {
     private Integer weight;
 
     private LocalDateTime updatedAt;
+
+    private Boolean pmr;       // Accès aux personnes à mobilité réduite
+    private Boolean blind;      // Accessible aux malvoyants
+    private Boolean deaf;       // Accessible aux malentendants
+    @Column(columnDefinition = "TEXT")
+    private String transport;   // Info sur les transports (ex: métro)
 }

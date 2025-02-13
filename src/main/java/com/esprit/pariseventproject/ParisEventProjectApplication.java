@@ -17,9 +17,6 @@ public class ParisEventProjectApplication {
 
 
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+
 
 }
