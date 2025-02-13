@@ -8,7 +8,7 @@ WORKDIR /app
 EXPOSE 8089
 
 # Copier le fichier JAR de l’application
-COPY target/parisEventProject-5.0.0.jar app.jar
+ADD target/parisEventProject-5.0.0.jar app.jar
 
 # Exécuter l’application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
