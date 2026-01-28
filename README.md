@@ -120,6 +120,8 @@ mvn clean install
 mvn spring-boot:run
 Projet Frontend associé
 
+---
+
 ### 🐳 Lancement avec Docker
 
 Pour démarrer tous les services avec Docker Compose :  
@@ -127,5 +129,6 @@ Pour démarrer tous les services avec Docker Compose :
 ```bash
 docker compose up --build
 
+---
 ### L’interface utilisateur Angular consommant cette API est disponible ici :
 👉 https://github.com/donia102000/paris_events_front
